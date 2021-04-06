@@ -1,0 +1,176 @@
+version: 1.6.2
+build: 20210406
+type: update
+name: 'FortinetVPN'
+id: 'fortinetVPN'
+homepage: https://github.com/layershift/jps-fortinetVPN
+baseUrl: https://raw.githubusercontent.com/layershift/jps-fortinetVPN/master
+logo: /images/openconnect.png?_r=${fn.random}
+
+categories:
+ - apps/others
+
+description:
+  text: /texts/description.md
+  short: Fortinet SSL VPN client
+
+targetNodes:
+  nodeGroup:
+  - cp
+
+requiredFeatures: extip
+
+settings:
+  main:
+    fields:
+    - type: string
+      name: host
+      caption: VPN peer
+      hideLabel: false
+      required: true
+    - type: string
+      name: port
+      caption: VPN peer port
+      hideLabel: false
+      required: true
+      default: 443
+    - type: string
+      name: username
+      caption: VPN Username
+      hideLabel: false
+      required: true
+    - type: string
+      name: password
+      caption: VPN Password
+      required: true
+      hideLabel: false
+    - type: text
+      name: hosts
+      caption: Custom /etc/hosts
+      default: "#127.0.0.1 localhost"
+
+    
+menu:
+  - caption: Check hosts file
+    loadingText: Checking..
+    action: checkHostsFile
+  - caption: Disable FortinetVPN
+    loadingText: Stopping..
+    confirmText: Are you sure you wish to disable FortinetVPN?
+    action: stopFortinetVPN
+  - caption: Restart FortinetVPN
+    loadingText: Restarting..
+    confirmText: Are you sure you wish to restart OpencoFortinetVPNnnect?
+    action: restartFortinetVPN
+  - caption: Configure
+    loadingText: Updating..
+    settings: main
+    confirmText: Are you sure you wish to configure FortinetVPN?
+    action: install
+    successText: /text/success_configured.md
+
+buttons:
+  - caption: Status
+    loadingText: Checking..
+    action: checkFortinetVPNStatus
+
+globals:
+  targetNodeId:  ${nodes.cp.first.id}
+  targetNodeType: ${nodes.cp.first.nodeType}
+  
+onAfterRedeployContainer:
+  install:
+    name: Install Action
+
+onInstall:
+  install:
+    name: Install Action
+
+onUninstall:
+  cmd [${globals.targetNodeId}]:
+    - systemctl disable fortinetvpn@server 2>&1 > /dev/null;
+    - systemctl stop fortinetvpn@server 2>&1 > /dev/null;
+    - yum remove openfortivpn
+    - sh /root/fortinetvpn_configure.sh "uninstall"
+    - rm -f /root/fortinetvpn_configure.sh;
+    - rm -f /etc/sudoers.d/fortinetvpn;
+    - rm -f /etc/systemd/system/fortinetvpn.service
+    - rm -rf /etc/openfortivpn
+  sayYes: true
+  user: root
+
+actions:
+  install:
+    - cmd [${globals.targetNodeId}]:
+      - which rpm 2>/dev/null >/dev/null; if [ $? -gt 0 ]; then echo -e "Issue:\nrpm not found"; exit 0; fi;
+      - which systemctl 2>/dev/null >/dev/null; if [ $? -gt 0 ]; then echo -e "Issue:\nsystemctl not found"; exit 0; fi;
+      - yum install epel-release && yum install openfortivpn; if [ $? -gt 0 ]; then echo -e "Issue:\nCan't install openfortivpn"; exit 0; fi;
+      - curl -fsSL '${baseUrl}/scripts/fortinetvpn_configure.sh' -o /root/fortinetvpn_configure.sh;
+      - bash /root/fortinetvpn_configure.sh "install" "${baseUrl}" "${settings.host}" "${settings.port}" "${settings.username}" '${settings.password}' "${settings.hosts}"
+      - curl -fsSL '${baseUrl}/scripts/sudo_fortinetvpn' -o /etc/sudoers.d/fortinetvpn;
+      - curl -fsSL '${baseUrl}/scripts/fortinetvpn.service' -o /etc/systemd/system/fortinetvpn.service;
+      - systemctl daemon-reload
+      - systemctl enable fortinetvpn@server 2>&1 > /dev/null;
+      - systemctl start fortinetvpn@server 2>&1 > /dev/null;
+      sayYes: true
+      user: root
+    - if (response.out.indexOf("Issue") !== -1):
+        message:  ${response.out}
+        script: |
+          return {'result': 2309, 'message': message.replace(/\n/g, '  \n')}
+
+  stopFortinetVPN:
+    - cmd [${globals.targetNodeId}]:
+        - systemctl stop fortinetvpn@server 2>&1 > /dev/null;
+        - sleep 3;
+        - echo "";
+      user: root
+    - message: ${response.out}
+      script: |
+        return {'result': 2307, 'message': message.replace(/\n/g, '  \n')}
+
+  restartFortinetVPN:
+    - cmd [${globals.targetNodeId}]:
+        - systemctl restart fortinetvpn@server 2>&1 > /dev/null;
+        - sleep 3;
+        - systemctl status fortinetvpn@server 2>&1 > /dev/null;
+        - if [ $? -gt 0 ]; then systemctl status fortinetvpn@server; else echo "Restart successful!"; fi;
+        - echo "";
+      user: root
+    - message: ${response.out}
+      script: |
+        return {'result': 2307, 'message': message.replace(/\n/g, '  \n')}
+
+  checkFortinetVPNStatus:
+    - cmd [${globals.targetNodeId}]:
+        - systemctl status fortinetvpn@server;
+        - echo "";
+      user: root
+    - message: ${response.out}
+      script: |
+        return {'result': 2307, 'message': message.replace(/\n/g, '  \n')}
+
+  checkHostsFile:
+    - cmd [${globals.targetNodeId}]:
+        - grep -q "#fortinetvpn mark" /etc/hosts 
+        - if [ $? -eq 0 ]; then from=$(grep "#fortinetvpn mark" /etc/hosts -m1 -n | awk -F ":" '{print $1}'); else from=1; fi;
+        - sed -ne $from,999p /etc/hosts;
+      user: root
+    - message: ${response.out}
+      script: |
+        return {'result': 2307, 'message': message.replace(/\n/g, '  \n')}
+
+responses:
+  2307:
+    type: info
+    message: Custom Success message!
+
+  2308:
+    type: success
+    message: Custom Success message!
+  
+  2309:
+    type: error
+    message: Custom Success message!
+
+success: /texts/success.md
