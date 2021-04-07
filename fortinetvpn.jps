@@ -94,7 +94,7 @@ onUninstall:
     - sh /root/fortinetvpn_configure.sh "uninstall"
     - rm -f /root/fortinetvpn_configure.sh;
     - rm -f /etc/sudoers.d/fortinetvpn;
-    - rm -f /etc/systemd/system/fortinetvpn.service
+    - rm -f /etc/systemd/system/fortinetvpn@.service
     - rm -rf /etc/openfortivpn
   sayYes: true
   user: root
@@ -108,7 +108,7 @@ actions:
       - curl -fsSL '${baseUrl}/scripts/fortinetvpn_configure.sh' -o /root/fortinetvpn_configure.sh;
       - bash /root/fortinetvpn_configure.sh "install" "${baseUrl}" "${settings.host}" "${settings.port}" "${settings.username}" '${settings.password}' "${settings.hosts}"
       - curl -fsSL '${baseUrl}/scripts/sudo_fortinetvpn' -o /etc/sudoers.d/fortinetvpn;
-      - curl -fsSL '${baseUrl}/scripts/fortinetvpn.service' -o /etc/systemd/system/fortinetvpn.service;
+      - curl -fsSL '${baseUrl}/scripts/fortinetvpn.service' -o /etc/systemd/system/fortinetvpn@.service;
       - systemctl daemon-reload
       - systemctl enable fortinetvpn@server 2>&1 > /dev/null;
       - systemctl start fortinetvpn@server 2>&1 > /dev/null;

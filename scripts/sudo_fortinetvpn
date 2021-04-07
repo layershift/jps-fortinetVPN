@@ -1,4 +1,4 @@
-Cmnd_Alias OPENFORTIVPN = /usr/bin/openfortivpn, /usr/bin/openfortivpn *, 
+Cmnd_Alias OPENFORTIVPN = /usr/bin/openfortivpn, /usr/bin/openfortivpn *
 Cmnd_Alias OPENFORTIVPN_SYSTEMCTL            = /usr/bin/systemctl restart fortinetvpn,           /usr/bin/systemctl stop fortinetvpn,            /usr/bin/systemctl start fortinetvpn,           /usr/bin/systemctl status fortinetvpn
 Cmnd_Alias OPENFORTIVPN_SYSTEMCTL_SERVICE    = /usr/bin/systemctl restart fortinetvpn.service,   /usr/bin/systemctl stop fortinetvpn.service,    /usr/bin/systemctl start fortinetvpn.service,   /usr/bin/systemctl status fortinetvpn.service
 Cmnd_Alias OPENFORTIVPN_SYSTEMCTL_AT         = /usr/bin/systemctl restart fortinetvpn@*,         /usr/bin/systemctl stop fortinetvpn@*,          /usr/bin/systemctl start fortinetvpn@*,         /usr/bin/systemctl status fortinetvpn@*

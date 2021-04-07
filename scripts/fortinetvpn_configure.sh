@@ -34,11 +34,13 @@ fi
 
 # find server cert
 #servercert=$(echo "$password" | openconnect --non-inter --authenticate --authgroup="$group" -u "$user" --passwd-on-stdin "$server" 2>&1 | grep "\-\-servercert" | sed "s#.*--servercert ##g")
+trustedcert=$(openfortivpn -c /etc/openfortivpn/server.conf | grep " trusted-cert " | awk '{print $NF}' | uniq | head -n1)
 
 sed -i -e "s/^host =.*$/host = $host/" $config
 sed -i -e "s/^port =.*$/port = $port/" $config
 sed -i -e "s/^username.*$/username = $username/" $config
 sed -i -e "s/^password.*$/password = $password/" $config
+sed -i -e "s/^trusted-cert.*$/trusted-cert = $trustedcert/" $config
 
 
 #/etc/hosts
