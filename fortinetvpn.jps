@@ -90,12 +90,14 @@ onUninstall:
   cmd [${globals.targetNodeId}]:
     - systemctl disable fortinetvpn@server 2>&1 > /dev/null;
     - systemctl stop fortinetvpn@server 2>&1 > /dev/null;
-    - yum remove openfortivpn
-    - sh /root/fortinetvpn_configure.sh "uninstall"
+    - yum remove openfortivpn;
+    - sh /root/fortinetvpn_configure.sh "uninstall";
     - rm -f /root/fortinetvpn_configure.sh;
     - rm -f /etc/sudoers.d/fortinetvpn;
-    - rm -f /etc/systemd/system/fortinetvpn@.service
-    - rm -rf /etc/openfortivpn
+    - rn -f /usr/local/bin/mkmodDevPPP;
+    - rm -f /etc/systemd/system/fortinetvpn@.service;
+    - rm -rf /etc/openfortivpn;
+    - systemctl daemon-reload;
   sayYes: true
   user: root
 
@@ -107,6 +109,7 @@ actions:
       - yum install epel-release && yum install openfortivpn; if [ $? -gt 0 ]; then echo -e "Issue:\nCan't install openfortivpn"; exit 0; fi;
       - curl -fsSL '${baseUrl}/scripts/fortinetvpn_configure.sh' -o /root/fortinetvpn_configure.sh;
       - bash /root/fortinetvpn_configure.sh "install" "${baseUrl}" "${settings.host}" "${settings.port}" "${settings.username}" '${settings.password}' "${settings.hosts}"
+      - curl -fsSL '${baseUrl}/scripts/mkmodDevPPP.sh' -o /usr/local/bin/mkmodDevPPP; chmod +x /usr/local/bin/mkmodDevPPP;
       - curl -fsSL '${baseUrl}/scripts/sudo_fortinetvpn' -o /etc/sudoers.d/fortinetvpn;
       - curl -fsSL '${baseUrl}/scripts/fortinetvpn.service' -o /etc/systemd/system/fortinetvpn@.service;
       - systemctl daemon-reload

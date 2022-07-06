@@ -5,6 +5,30 @@ This repository provides [forticlientsslvpn_cli](https://kb.fortinet.com/kb/docu
 **Type of nodes this add-on can be applied to**: 
 - Application server (cp).
 
+### Dependencies
+
+Fortinet VPN client needs the PPP kernel module loaded in the kernel and accessible from the container.
+HW node:
+```
+modprobe ppp-generic
+modprobe ppp_async
+
+/bin/cat << EOF > /etc/modules-load.d/ppp.conf
+ppp_async
+ppp_deflate
+ppp_mppe
+EOF
+```
+
+Container setup:
+```
+vzctl stop <ctid>
+vzctl set <ctid> --features ppp:on --save
+vzctl set <ctid> --devices c:108:0:rw --save
+vzctl start <ctid>
+```
+
+
 ### What it can be used for?
 It will provide a secure connection from your 1st application node to your VPN gateway
 
