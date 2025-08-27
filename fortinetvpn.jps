@@ -110,6 +110,7 @@ actions:
       - curl -fsSL '${baseUrl}/scripts/fortinetvpn_configure.sh' -o /root/fortinetvpn_configure.sh;
       - bash /root/fortinetvpn_configure.sh "install" "${baseUrl}" "${settings.host}" "${settings.port}" "${settings.username}" '${settings.password}' "${settings.hosts}"
       - curl -fsSL '${baseUrl}/scripts/mkmodDevPPP.sh' -o /usr/local/bin/mkmodDevPPP; chmod +x /usr/local/bin/mkmodDevPPP;
+      - curl -fsSL '${baseUrl}/scripts/openFortinetVPNCertificateUpdate.sh' -o /usr/local/bin/openFortinetVPNCertificateUpdate; chmod +x /usr/local/bin/openFortinetVPNCertificateUpdate;
       - curl -fsSL '${baseUrl}/scripts/sudo_fortinetvpn' -o /etc/sudoers.d/fortinetvpn;
       - curl -fsSL '${baseUrl}/scripts/fortinetvpn.service' -o /etc/systemd/system/fortinetvpn@.service;
       - systemctl daemon-reload

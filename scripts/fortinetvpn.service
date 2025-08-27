@@ -12,6 +12,7 @@ Type=simple
 PrivateTmp=true
 ExecStartPre=-/usr/local/bin/mkmodDevPPP
 ExecStart=/usr/bin/openfortivpn -c /etc/openfortivpn/%I.conf
+ExecStopPost=/usr/local/bin/openFortinetVPNCertificateUpdate.sh /etc/openfortivpn/%I.conf
 OOMScoreAdjust=-100
 
 # Auto restart when it gets disconnected.
